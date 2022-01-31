@@ -98,7 +98,7 @@ def rehacer_tablero(lugar_de_mina, tablero, aciertos, vidas, comprobador):
     return vidas, aciertos
 
 
-
+#Final de las definiciones, comienzo del programa
 print("INFO:\n"
       "💣=Bomba descubierta\n"
       "▩=No hay nada en el lugar\n"
