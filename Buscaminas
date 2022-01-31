@@ -1,0 +1,138 @@
+import random
+
+
+def generar_tablero(numero): #Una simple funcion que genera un tablero cuadrado tan largo como se indique
+    tablero = []
+    lista = []
+    for i in range(numero):
+        tablero.append(lista)
+    for i in range(numero):
+        tablero[i] = list("▢" * numero)
+    return tablero
+
+
+def pintar_tablero(tablero):#La funcion que se reutiliza para pintar cada vez el tablero despues de crearlo
+    print("_" * (3 * numero_de_casillas))
+    for i in range(len(tablero)):
+        for j in range(len(tablero)):
+            print(tablero[i][j], " ", end="")
+        print("")
+    print("_" * (3 * numero_de_casillas))
+    print(f"te quedan {str(vidas)} vidas y faltan {int(cantidad_minas)-int(aciertos)} minas por encontrar")
+
+
+def mirar_si_es_numero(valor):# Función que se utiliza más tarde para que el usuario solo pueda insertar números
+    # hasta el 10, ni letras ni negativos
+    NUMERO = ["0","1", "2", "3", "4", "5", "6", "7", "8", "9", "10"]
+    if valor in NUMERO:
+        es_un_numero = True
+    else:
+        es_un_numero = False
+    return es_un_numero
+
+def colocar_minas(numero, cantidad_minas):
+    minas = []
+    bucle = 0
+    while cantidad_minas != bucle:
+        ejex = random.randint(0, (numero - 1))
+        ejey = random.randint(0, (numero - 1))
+        minarepetida = (ejex, ejey)
+        if minarepetida not in minas: # Si la mina que se iba a colocar, ya existe en ese lugar, vuelve arriba y
+            # recoloca hasta que encuentra un lugar vacio
+            minas += [(ejex, ejey)]
+            bucle += 1
+    return minas
+
+
+def jugar():
+    coordx = input("¿En que coordenada X está la bomba?")
+    es_un_numero = mirar_si_es_numero(coordx)
+    while es_un_numero == False or int(coordx) >= int(numero_de_casillas):#Primero comprueba si es un número válido para leer, si no lo es, o es más grande
+        # que la rejilla del tablero, repite el input
+        coordx = input("Pon un número válido")
+        es_un_numero = mirar_si_es_numero(coordx)
+    coordx = int(coordx)# Si es un número válido, lo convierte a int
+
+    coordy = input("¿En que coordenada Y está la bomba?")#Ocurre lo mismo pero para el eje y
+    es_un_numero = mirar_si_es_numero(coordy)
+    while es_un_numero == False or int(coordy) >= int(numero_de_casillas):
+        coordy = input("Pon un número válido")
+        es_un_numero = mirar_si_es_numero(coordy)
+    coordy = int(coordy)
+
+    jugada = (coordx, coordy)#Se asignan ambos ejes y se envía
+    return jugada
+
+
+def acertado(mina, jugada):
+    comprobador = 0
+    lugar_de_mina = []
+    if jugada not in mina:#Se recibe la jugada, y si no está entre las minas, envía el comprobador a cero para que
+        # luego se pueda pintar en el tablero un vacio
+        print("No hay ninguna mina ahí")
+        lugar_de_mina = jugada
+        comprobador = 0
+    else:
+        for i in mina:
+            if i == jugada:
+                lugar_de_mina = jugada#Se recibe la jugada, y envía el comprobador a uno para que luego se pueda
+                # pintar en el tablero una bomba
+                comprobador = 1
+    return lugar_de_mina, comprobador
+
+
+def rehacer_tablero(lugar_de_mina, tablero, aciertos, vidas, comprobador):
+    x = int(lugar_de_mina[0])
+    y = int(lugar_de_mina[1])
+    #se recibe la jugada y se le dan parametros para poder determinar el lugar en las listas del tableros. Segun el
+    # comprobador que se haya enviado, se pinta una cosa u otra, y se cambian las vidas y los aciertos respectivamente
+    if tablero[x][y] == "▩" or tablero[x][y] == "💣":
+        print("Ya la habías dicho antes")
+        vidas -= 1
+    elif comprobador == 1:
+        tablero[x][y] = "💣"
+        aciertos += 1
+    else:
+        tablero[x][y] = "▩"
+        vidas -= 1
+    return vidas, aciertos
+
+
+
+print("INFO:\n"
+      "💣=Bomba descubierta\n"
+      "▩=No hay nada en el lugar\n"
+      "▢=No has clicado en el lugar\n")
+numero_de_casillas = input("de cuanto quieres que sea la matriz?(max 10)")
+es_un_numero = mirar_si_es_numero(numero_de_casillas)#Primero comprueba si es un número válido para leer
+while es_un_numero == False or numero_de_casillas=="0":#Ha de ser una matriz minimo de 1x1 por lo que el 0 tampoco vale
+    numero_de_casillas = input("Pon un número válido")
+    es_un_numero = mirar_si_es_numero(numero_de_casillas)
+numero_de_casillas = int(numero_de_casillas)
+
+cantidad_minas = input("Cuantas minas quieres?(max 10)")
+es_un_numero = mirar_si_es_numero(cantidad_minas)#De nuevo comprueba si es un número válido para leer
+while es_un_numero == False or cantidad_minas=="0" or int(cantidad_minas) > int(numero_de_casillas * numero_de_casillas):
+    #Debe haber una mina para poder jugar por lo que 0 de nuevo no vale. Además comprueba que haya menos minas
+    # que lugares.Si hay más mians, repite
+    cantidad_minas = input("Pon un número válido, no puedes poner más minas que casillas existen, ni 0 minas")
+    es_un_numero = mirar_si_es_numero(cantidad_minas)
+cantidad_minas = int(cantidad_minas)#Comfirma que es un número y lo pasa a int para poder trabajar después
+vidas = 2 * int(cantidad_minas)
+aciertos = 0
+
+tablero = generar_tablero(numero_de_casillas)
+pintar_tablero(tablero)
+mina = colocar_minas(numero_de_casillas, cantidad_minas)#Genera el tablero, lo pinta, y coloca las minas
+
+while vidas != -1: #Creamos un bucle que no termine hasta que lo rompamos nosotros, o, llegue a vidas negativas
+    jugada = jugar()
+    lugar_de_mina, comprobador = acertado(mina, jugada)
+    vidas, aciertos = rehacer_tablero(lugar_de_mina, tablero, aciertos, vidas, comprobador)
+    pintar_tablero(tablero)#Juega, comprueba, rehace el tablero y lo vuelve a pintar, luego hace el bucle de nuevo
+    if aciertos == cantidad_minas:
+        print("bien,has ganado")
+        break
+    if vidas == 0:
+        print("se han acabado tus vidas, no hay más intentos")
+        break
